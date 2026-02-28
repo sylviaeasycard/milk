@@ -1,6 +1,6 @@
 {
   "name": "Milk v3",
-  "short_name": "MilkScan",
+  "short_name": "Milk",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
