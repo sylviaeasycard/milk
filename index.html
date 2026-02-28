@@ -7,68 +7,64 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2563eb">
 <style>
-    body { font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#f8fafc; margin:0; display:flex; flex-direction:column; height:100vh; color:#1e293b; overflow: hidden; }
-    header { background:white; padding:45px 20px 15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; }
-    header h1 { margin:0; font-size:20px; font-weight:900; color:#2563eb; letter-spacing:-0.5px; }
-    .reset-btn { border:none; background:#f1f5f9; padding:8px 14px; border-radius:20px; font-weight:bold; color:#64748b; }
+    /* 讓整個畫面不要捲動，固定高度 */
+    body { font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#f8fafc; margin:0; display:flex; flex-direction:column; height:100dvh; color:#1e293b; overflow: hidden; }
     
-    main { flex:1; overflow:auto; padding:20px; padding-bottom: 50px; }
+    /* 1. 縮小 Header，釋放空間 */
+    header { background:white; padding:15px 20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; flex-shrink: 0; }
+    header h1 { margin:0; font-size:16px; font-weight:900; color:#2563eb; }
+    .reset-btn { border:none; background:#f1f5f9; padding:6px 12px; border-radius:15px; font-size: 12px; font-weight:bold; color:#64748b; }
+    
+    /* 2. 主內容區：讓 A、B 方案自動伸展 */
+    main { flex:1; display: flex; flex-direction: column; padding: 12px; gap: 10px; overflow: hidden; }
     
     .card { 
-        background:white; border-radius:20px; padding:18px; margin-bottom:15px; 
-        border: 2px solid #e2e8f0; transition: 0.2s; 
+        flex: 1; /* A、B 方案平分剩餘空間 */
+        background:white; border-radius:18px; padding:12px; 
+        border: 2px solid #e2e8f0; transition: 0.2s;
+        display: flex; flex-direction: column; justify-content: space-between;
     }
     
-    .card.active-side { 
-        border-color: #2563eb; 
-        background: #eff6ff; 
-        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.1); 
-    }
+    .card.active-side { border-color: #2563eb; background: #eff6ff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08); }
     
-    .label { font-size:11px; font-weight:900; color:#94a3b8; margin-bottom:8px; display: flex; justify-content: space-between; }
+    .label { font-size:11px; font-weight:900; color:#94a3b8; display: flex; justify-content: space-between; }
     .active-tag { color: #2563eb; font-size: 10px; visibility: hidden; }
     .active-side .active-tag { visibility: visible; }
 
-    .vol-num { font-size:24px; font-weight:900; margin: 10px 0; }
-    .combo-area { display:flex; flex-wrap:wrap; gap:6px; min-height:45px; align-items: flex-end; margin-bottom: 10px; }
-    .icon-unit { display:flex; flex-direction:column; align-items:center; }
+    .vol-num { font-size:22px; font-weight:900; margin: 5px 0; }
+    .combo-area { display:flex; flex-wrap:wrap; gap:4px; min-height:30px; align-items: flex-end; overflow: hidden; }
     
-    input { width:100%; border:none; border-radius:15px; padding:12px; font-size:20px; font-weight:900; background:#f1f5f9; box-sizing: border-box; outline: none; -webkit-appearance: none; }
-    input:focus { background: #e2e8f0; border: 1px solid #cbd5e1; }
-    .unit-price { font-size: 14px; font-weight: 800; color: #64748b; margin-top: 8px; height: 20px; transition: 0.2s; }
+    input { width:100%; border:none; border-radius:12px; padding:10px; font-size:18px; font-weight:900; background:#f1f5f9; box-sizing: border-box; outline: none; }
+    .unit-price { font-size: 14px; font-weight: 800; color: #64748b; height: 18px; }
 
-    .bottom-bar { background:white; padding:15px 20px 35px; border-top:1px solid #eee; box-shadow:0 -5px 20px rgba(0,0,0,0.05); }
-    .win-msg { text-align:center; font-weight:900; margin-bottom:15px; font-size: 18px; min-height: 24px; transition: 0.3s; }
+    /* 3. 底部區域：2x2 排列，取消滑動 */
+    .bottom-bar { background:white; padding:12px 12px 25px; border-top:1px solid #eee; flex-shrink: 0; }
+    .win-msg { text-align:center; font-weight:900; margin-bottom:10px; font-size: 16px; color: #94a3b8; }
     
     .btn-grid {
-        display: flex;
-        overflow-x: auto;
-        gap: 12px;
-        padding: 5px 5px 15px 5px;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 兩列式 */
+        grid-template-rows: 1fr 1fr;    /* 兩行式 */
+        gap: 8px;
     }
-    .btn-grid::-webkit-scrollbar { display: none; }
 
     .milk-card {
-        flex: 0 0 100px;
-        background: #ffffff;
-        border-radius: 20px;
-        padding: 12px 8px;
-        text-align: center;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        border: 2px solid transparent;
-        transition: 0.2s;
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* 左右並排更省垂直空間 */
+        border: 1px solid #e2e8f0;
     }
-    .milk-card.active { border-color: #2563eb; background: #f8faff; }
-    .milk-card:active { transform: scale(0.95); }
-    .milk-card svg { margin-bottom: 5px; }
-
-    .size-label { display: block; font-size: 12px; font-weight: 900; color: #64748b; margin-bottom: 8px; }
-    .qty-control { display:flex; justify-content:center; align-items:center; gap:8px; }
-    .qty-control button { width:32px; height:32px; border-radius:50%; border:none; background:#f1f5f9; font-weight:900; font-size:16px; display:flex; align-items:center; justify-content:center; }
-    .qty-control button:disabled { opacity: 0.2; }
-    .qty-control span { min-width:15px; font-weight:900; font-size: 15px; color: #1e293b; }
+    .milk-card.active { border-color: #2563eb; background: #f0f7ff; }
+    
+    .card-info { display: flex; align-items: center; gap: 6px; }
+    .size-label { font-size: 12px; font-weight: 900; color: #475569; }
+    
+    .qty-control { display:flex; align-items:center; gap:6px; }
+    .qty-control button { width:28px; height:28px; border-radius:8px; border:none; background:white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-weight:900; }
+    .qty-control span { min-width:12px; font-weight:900; font-size: 14px; text-align: center; }
 </style>
 </head>
 <body>
@@ -80,29 +76,31 @@
 
 <main>
     <div class="card active-side" id="side-card-1" onclick="switchSide(1)">
-        <div class="label">方案 A <span class="active-tag">● 正在輸入</span></div>
-        <div class="combo-area" id="list-1"></div>
+        <div class="label">方案 A <span class="active-tag">● 修改中</span></div>
         <div class="vol-num"><span id="vol-1">0</span> ml</div>
+        <div class="combo-area" id="list-1"></div>
         <input type="number" id="price-1" inputmode="decimal" enterkeyhint="next" placeholder="輸入價格" oninput="calc()" onclick="event.stopPropagation()">
         <div class="unit-price" id="unit-1"></div>
     </div>
 
     <div class="card" id="side-card-2" onclick="switchSide(2)">
-        <div class="label">方案 B <span class="active-tag">● 正在輸入</span></div>
-        <div class="combo-area" id="list-2"></div>
+        <div class="label">方案 B <span class="active-tag">● 修改中</span></div>
         <div class="vol-num"><span id="vol-2">0</span> ml</div>
+        <div class="combo-area" id="list-2"></div>
         <input type="number" id="price-2" inputmode="decimal" enterkeyhint="done" placeholder="輸入價格" oninput="calc()" onclick="event.stopPropagation()">
         <div class="unit-price" id="unit-2"></div>
     </div>
 </main>
 
 <div class="bottom-bar">
-    <div class="win-msg" id="win-text">READY TO COMPARE</div>
+    <div class="win-msg" id="win-text">READY</div>
 
     <div class="btn-grid">
         <div class="milk-card" id="card-230">
-            <svg width="20" height="28" viewBox="0 0 40 50"><path d="M10 15 L20 5 L30 15 L30 45 L10 45 Z" fill="#eff6ff" stroke="#3b82f6" stroke-width="4"/></svg>
-            <div class="size-label">230ml</div>
+            <div class="card-info">
+                <svg width="14" height="20" viewBox="0 0 40 50"><path d="M10 15 L20 5 L30 15 L30 45 L10 45 Z" fill="#eff6ff" stroke="#3b82f6" stroke-width="4"/></svg>
+                <span class="size-label">230</span>
+            </div>
             <div class="qty-control">
                 <button onclick="event.stopPropagation(); change(230,-1)" id="btn-230-minus">−</button>
                 <span id="count-230">0</span>
@@ -110,8 +108,10 @@
             </div>
         </div>
         <div class="milk-card" id="card-468">
-            <svg width="20" height="28" viewBox="0 0 40 60"><path d="M10 15 L20 5 L30 15 L30 55 L10 55 Z" fill="#ecfdf5" stroke="#22c55e" stroke-width="4"/></svg>
-            <div class="size-label">468ml</div>
+            <div class="card-info">
+                <svg width="14" height="20" viewBox="0 0 40 60"><path d="M10 15 L20 5 L30 15 L30 55 L10 55 Z" fill="#ecfdf5" stroke="#22c55e" stroke-width="4"/></svg>
+                <span class="size-label">468</span>
+            </div>
             <div class="qty-control">
                 <button onclick="event.stopPropagation(); change(468,-1)" id="btn-468-minus">−</button>
                 <span id="count-468">0</span>
@@ -119,8 +119,10 @@
             </div>
         </div>
         <div class="milk-card" id="card-936">
-            <svg width="22" height="28" viewBox="0 0 50 70"><path d="M8 15 L25 5 L42 15 L42 65 L8 65 Z" fill="#fff7ed" stroke="#f59e0b" stroke-width="4"/></svg>
-            <div class="size-label">936ml</div>
+            <div class="card-info">
+                <svg width="16" height="20" viewBox="0 0 50 70"><path d="M8 15 L25 5 L42 15 L42 65 L8 65 Z" fill="#fff7ed" stroke="#f59e0b" stroke-width="4"/></svg>
+                <span class="size-label">936</span>
+            </div>
             <div class="qty-control">
                 <button onclick="event.stopPropagation(); change(936,-1)" id="btn-936-minus">−</button>
                 <span id="count-936">0</span>
@@ -128,8 +130,10 @@
             </div>
         </div>
         <div class="milk-card" id="card-1857">
-            <svg width="24" height="28" viewBox="0 0 65 75"><path d="M15 20 Q15 10 32 10 Q50 10 50 20 L50 65 L15 65 Z" fill="#fef2f2" stroke="#ef4444" stroke-width="4"/><path d="M50 25 Q58 25 58 35 L58 50 Q58 60 50 60" fill="none" stroke="#ef4444" stroke-width="4"/></svg>
-            <div class="size-label">1857ml</div>
+            <div class="card-info">
+                <svg width="18" height="20" viewBox="0 0 65 75"><path d="M15 20 Q15 10 32 10 Q50 10 50 20 L50 65 L15 65 Z" fill="#fef2f2" stroke="#ef4444" stroke-width="4"/></svg>
+                <span class="size-label">1857</span>
+            </div>
             <div class="qty-control">
                 <button onclick="event.stopPropagation(); change(1857,-1)" id="btn-1857-minus">−</button>
                 <span id="count-1857">0</span>
@@ -147,17 +151,15 @@ let data = {
 };
 
 const config = {
-    230:  { color: "#3b82f6", h: 20, p: "M4 6 L8 2 L12 6 L12 18 L4 18 Z" },
-    468:  { color: "#22c55e", h: 24, p: "M4 6 L8 2 L12 6 L12 22 L4 22 Z" },
-    936:  { color: "#f59e0b", h: 28, p: "M3 6 L10 2 L17 6 L17 26 L3 26 Z" },
-    1857: { color: "#ef4444", h: 28, p: "M5 8 Q5 4 12 4 Q19 4 19 8 L19 26 L5 26 Z" }
+    230:  { color: "#3b82f6", h: 18, p: "M4 6 L8 2 L12 6 L12 18 L4 18 Z" },
+    468:  { color: "#22c55e", h: 20, p: "M4 6 L8 2 L12 6 L12 22 L4 22 Z" },
+    936:  { color: "#f59e0b", h: 22, p: "M3 6 L10 2 L17 6 L17 26 L3 26 Z" },
+    1857: { color: "#ef4444", h: 22, p: "M5 8 Q5 4 12 4 Q19 4 19 8 L19 26 L5 26 Z" }
 };
 
 function getIconHtml(ml) {
     const c = config[ml];
-    return `<div class="icon-unit">
-        <svg width="14" height="${c.h}" viewBox="0 0 22 30"><path d="${c.p}" fill="none" stroke="${c.color}" stroke-width="3"/></svg>
-    </div>`;
+    return `<svg width="10" height="${c.h}" viewBox="0 0 22 30"><path d="${c.p}" fill="none" stroke="${c.color}" stroke-width="3"/></svg>`;
 }
 
 function switchSide(id) {
@@ -215,42 +217,26 @@ function calc() {
     if (u1 && u2) {
         if (u1 < u2) { 
             winTxt.innerText = "🏆 方案 A 比較便宜!"; winTxt.style.color = "#2563eb";
-            res1.style.color = "#16a34a"; res1.style.fontSize = "18px";
+            res1.style.color = "#16a34a"; res1.style.fontSize = "20px";
             res2.style.color = "#94a3b8"; res2.style.fontSize = "14px";
         } else if (u2 < u1) { 
             winTxt.innerText = "🏆 方案 B 比較便宜!"; winTxt.style.color = "#16a34a";
-            res2.style.color = "#16a34a"; res2.style.fontSize = "18px";
+            res2.style.color = "#16a34a"; res2.style.fontSize = "20px";
             res1.style.color = "#94a3b8"; res1.style.fontSize = "14px";
         } else { 
             winTxt.innerText = "兩邊一樣省!"; winTxt.style.color = "#64748b";
             res1.style.color = res2.style.color = "#64748b";
         }
     } else {
-        winTxt.innerText = "READY TO COMPARE";
+        winTxt.innerText = "READY";
         winTxt.style.color = "#94a3b8";
         res1.style.color = res2.style.color = "#64748b";
-        res1.style.fontSize = res2.style.fontSize = "14px";
     }
 }
 
-// 鍵盤邏輯
 document.getElementById('price-1').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); switchSide(2); document.getElementById('price-2').focus(); } });
 document.getElementById('price-2').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
-document.addEventListener('touchstart', e => { 
-    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
-        document.activeElement.blur();
-    }
-}, {passive: true});
-
-// 修正切換時不收起鍵盤（除非真的需要）
-const oldSwitch = switchSide;
-switchSide = id => { 
-    // 如果點擊的是另一個卡片，才收起鍵盤
-    if (side !== id) {
-        // 這裡暫時不強制收起，讓輸入體驗更順
-    }
-    oldSwitch(id); 
-};
+document.addEventListener('touchstart', e => { if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') document.activeElement.blur(); }, {passive: true});
 </script>
 </body>
 </html>
