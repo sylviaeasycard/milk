@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Milk Scanner v3 PWA</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<style>
+    body { font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#f8fafc; margin:0; display:flex; flex-direction:column; height:100vh; color:#1e293b; }
+    header { background:white; padding:45px 20px 15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; }
+    header h1 { margin:0; font-size:20px; font-weight:900; color:#2563eb; letter-spacing:-0.5px; }
+    .reset-btn { border:none; background:#f1f5f9; padding:8px 14px; border-radius:20px; font-weight:bold; color:#64748b; }
+    
+    main { flex:1; overflow:auto; padding:20px; }
+    .card { background:white; border-radius:20px; padding:18px; margin-bottom:15px; border:2px solid #e2e8f0; transition: 0.3s; }
+    .card.active-side { border-color: #2563eb; background: #eff6ff; }
+    .label { font-size:11px; font-weight:900; color:#94a3b8; margin-bottom:8px; }
+    .vol-num { font-size:24px; font-weight:900; margin: 10px 0; }
+    
+    /* 圖示容器 */
+    .combo-area { display:flex; flex-wrap:wrap; gap:6px; min-height:45px; align-items: flex-end; margin-bottom: 10px; }
+    .icon-unit { display:flex; flex-direction:column; align-items:center; }
+    
+    input { width:100%; border:none; border-radius:15px; padding:12px; font-size:20px; font-weight:900; background:#f1f5f9; box-sizing: border-box; }
+    .unit-price { font-size: 13px; font-weight: 800; color: #64748b; margin-top: 8px; height: 18px; }
+
+    .bottom-bar { background:white; padding:20px; border-top:1px solid #eee; box-shadow:0 -5px 20px rgba(0,0,0,0.05); }
+    .win-msg { text-align:center; font-weight:900; margin-bottom:15px; font-size: 18px; min-height: 24px; }
+    
+    .btn-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:15px; }
+    .milk-card { background:white; border-radius:18px; padding:10px 5px; text-align:center; border: 2px solid transparent; box-shadow:0 4px 10px rgba(0,0,0,0.05); }
+    .milk-card.active { border-color: #2563eb; }
+    .size-label { font-size:11px; font-weight:900; margin: 5px 0; }
+    
+    .qty-control { display:flex; justify-content:center; align-items:center; gap:4px; }
+    .qty-control button { width:28px; height:28px; border-radius:50%; border:none; background:#f1f5f9; font-weight:900; }
+    .qty-control button:disabled { opacity: 0.3; }
+    .qty-control span { min-width:15px; font-weight:900; font-size: 14px; }
+
+    .tab-grid { display:flex; gap:10px; }
+    .tab { flex:1; padding:12px; border:none; border-radius:15px; font-weight:900; font-size: 15px; transition: 0.2s; }
+    .active-tab { background:#2563eb; color:white; }
+    .inactive-tab { background:#e2e8f0; color: #64748b; }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>MILK SCANNER v3</h1>
+    <button class="reset-btn" onclick="location.reload()">RESET</button>
+</header>
+
+<main>
+    <div class="card active-side" id="side-card-1">
+        <div class="label">OPTION A</div>
+        <div class="combo-area" id="list-1"></div>
+        <div class="vol-num"><span id="vol-1">0</span> ml</div>
+        <input type="number" id="price-1" inputmode="decimal" placeholder="輸入價格" oninput="calc()">
+        <div class="unit-price" id="unit-1"></div>
+    </div>
+
+    <div class="card" id="side-card-2">
+        <div class="label">OPTION B</div>
+        <div class="combo-area" id="list-2"></div>
+        <div class="vol-num"><span id="vol-2">0</span> ml</div>
+        <input type="number" id="price-2" inputmode="decimal" placeholder="輸入價格" oninput="calc()">
+        <div class="unit-price" id="unit-2"></div>
+    </div>
+</main>
+
+<div class="bottom-bar">
+    <div id="win-text" class="win-msg">READY TO COMPARE</div>
+    
+    <div class="btn-grid">
+        <div class="milk-card" id="card-230">
+            <svg width="20" height="30" viewBox="0 0 40 50"><path d="M10 15 L20 5 L30 15 L30 45 L10 45 Z" fill="#eff6ff" stroke="#3b82f6" stroke-width="4"/></svg>
+            <div class="size-label">230ml</div>
+            <div class="qty-control">
+                <button onclick="change(230,-1)" id="btn-230-minus">−</button>
+                <span id="count-230">0</span>
+                <button onclick="change(230,1)">＋</button>
+            </div>
+        </div>
+        <div class="milk-card" id="card-468">
+            <svg width="20" height="30" viewBox="0 0 40 60"><path d="M10 15 L20 5 L30 15 L30 55 L10 55 Z" fill="#ecfdf5" stroke="#22c55e" stroke-width="4"/></svg>
+            <div class="size-label">468ml</div>
+            <div class="qty-control">
+                <button onclick="change(468,-1)" id="btn-468-minus">−</button>
+                <span id="count-468">0</span>
+                <button onclick="change(468,1)">＋</button>
+            </div>
+        </div>
+        <div class="milk-card" id="card-936">
+            <svg width="22" height="30" viewBox="0 0 50 70"><path d="M8 15 L25 5 L42 15 L42 65 L8 65 Z" fill="#fff7ed" stroke="#f59e0b" stroke-width="4"/></svg>
+            <div class="size-label">936ml</div>
+            <div class="qty-control">
+                <button onclick="change(936,-1)" id="btn-936-minus">−</button>
+                <span id="count-936">0</span>
+                <button onclick="change(936,1)">＋</button>
+            </div>
+        </div>
+        <div class="milk-card" id="card-1857">
+            <svg width="24" height="30" viewBox="0 0 65 75"><path d="M15 20 Q15 10 32 10 Q50 10 50 20 L50 65 L15 65 Z" fill="#fef2f2" stroke="#ef4444" stroke-width="4"/><path d="M50 25 Q58 25 58 35 L58 50 Q58 60 50 60" fill="none" stroke="#ef4444" stroke-width="4"/></svg>
+            <div class="size-label">1857ml</div>
+            <div class="qty-control">
+                <button onclick="change(1857,-1)" id="btn-1857-minus">−</button>
+                <span id="count-1857">0</span>
+                <button onclick="change(1857,1)">＋</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-grid">
+        <button id="tab-1" class="tab active-tab" onclick="switchSide(1)">EDIT A</button>
+        <button id="tab-2" class="tab inactive-tab" onclick="switchSide(2)">EDIT B</button>
+    </div>
+</div>
+
+<script>
+let side = 1;
+let data = {
+    1: { t: 0, c: { 230: 0, 468: 0, 936: 0, 1857: 0 } },
+    2: { t: 0, c: { 230: 0, 468: 0, 936: 0, 1857: 0 } }
+};
+
+const config = {
+    230:  { color: "#3b82f6", h: 20, p: "M4 6 L8 2 L12 6 L12 18 L4 18 Z" },
+    468:  { color: "#22c55e", h: 24, p: "M4 6 L8 2 L12 6 L12 22 L4 22 Z" },
+    936:  { color: "#f59e0b", h: 28, p: "M3 6 L10 2 L17 6 L17 26 L3 26 Z" },
+    1857: { color: "#ef4444", h: 28, p: "M5 8 Q5 4 12 4 Q19 4 19 8 L19 26 L5 26 Z" }
+};
+
+function getIconHtml(ml) {
+    const c = config[ml];
+    return `<div class="icon-unit">
+        <svg width="14" height="${c.h}" viewBox="0 0 22 30"><path d="${c.p}" fill="none" stroke="${c.color}" stroke-width="3"/></svg>
+        <span style="font-size:8px;font-weight:900;color:${c.color}">${ml}</span>
+    </div>`;
+}
+
+function switchSide(id) {
+    side = id;
+    document.getElementById("tab-1").className = id==1 ? "tab active-tab" : "tab inactive-tab";
+    document.getElementById("tab-2").className = id==2 ? "tab active-tab" : "tab inactive-tab";
+    document.getElementById("side-card-1").classList.toggle("active-side", id==1);
+    document.getElementById("side-card-2").classList.toggle("active-side", id==2);
+    updateUI();
+}
+
+function change(ml, delta) {
+    data[side].c[ml] += delta;
+    if (data[side].c[ml] < 0) data[side].c[ml] = 0;
+    
+    // 震動回饋 (手機專用)
+    if(window.navigator.vibrate) window.navigator.vibrate(10);
+    
+    recalc(side);
+}
+
+function recalc(s) {
+    let total = 0;
+    let html = "";
+    for (let ml in data[s].c) {
+        let count = data[s].c[ml];
+        total += ml * count;
+        for (let i = 0; i < count; i++) html += getIconHtml(ml);
+    }
+    data[s].t = total;
+    document.getElementById("vol-" + s).innerText = total;
+    document.getElementById("list-" + s).innerHTML = html;
+    updateUI();
+    calc();
+}
+
+function updateUI() {
+    // 確保底部按鈕顯示的是「目前選中那邊」的數量
+    [230, 468, 936, 1857].forEach(ml => {
+        let count = data[side].c[ml];
+        document.getElementById("count-" + ml).innerText = count;
+        document.getElementById("card-" + ml).classList.toggle("active", count > 0);
+        document.getElementById("btn-" + ml + "-minus").disabled = count === 0;
+    });
+}
+
+function calc() {
+    let p1 = parseFloat(document.getElementById("price-1").value);
+    let p2 = parseFloat(document.getElementById("price-2").value);
+    let u1 = (p1 > 0 && data[1].t > 0) ? (p1 / data[1].t * 100) : null;
+    let u2 = (p2 > 0 && data[2].t > 0) ? (p2 / data[2].t * 100) : null;
+
+    document.getElementById("unit-1").innerText = u1 ? `$ ${u1.toFixed(2)} / 100ml` : "";
+    document.getElementById("unit-2").innerText = u2 ? `$ ${u2.toFixed(2)} / 100ml` : "";
+
+    let txt = document.getElementById("win-text");
+    if (u1 && u2) {
+        if (u1 < u2) { txt.innerText = "🏆 OPTION A WINS!"; txt.style.color = "#2563eb"; }
+        else if (u2 < u1) { txt.innerText = "🏆 OPTION B WINS!"; txt.style.color = "#16a34a"; }
+        else { txt.innerText = "TIE GAME"; txt.style.color = "#64748b"; }
+    } else {
+        txt.innerText = "READY TO COMPARE";
+        txt.style.color = "#94a3b8";
+    }
+}
+</script>
+</body>
+</html>
