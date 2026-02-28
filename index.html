@@ -2,15 +2,15 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Milk v3 - Pro</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2563eb">
 <style>
-    body { font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#f8fafc; margin:0; display:flex; flex-direction:column; height:100dvh; color:#1e293b; overflow: hidden; }
+    body { font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#f8fafc; margin:0; display:flex; flex-direction:column; height: 100dvh; color:#1e293b; overflow: hidden; }
     header { background:white; padding:12px 20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; flex-shrink: 0; }
     header h1 { margin:0; font-size:14px; font-weight:900; color:#2563eb; }
-    .reset-btn { border:none; background:#f1f5f9; padding:5px 10px; border-radius:12px; font-size: 11px; font-weight:bold; color:#64748b; }
+    .reset-btn { border:none; background:#f1f5f9; padding:5px 10px; border-radius:12px; font-size: 11px; font-weight:bold; color:#64748b; cursor: pointer; }
     
     main { flex:1; display: flex; flex-direction: column; padding: 10px; gap: 8px; overflow: hidden; }
     
@@ -23,12 +23,13 @@
 
     .vol-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: nowrap; overflow: hidden; }
     .vol-num { font-size:20px; font-weight:900; white-space: nowrap; }
-    .combo-area { display:flex; align-items: center; gap:2px; overflow: hidden; }
+    .combo-area { display:flex; align-items: center; gap:2px; overflow: hidden; height: 22px; }
     
     input { width:100%; border:none; border-radius:10px; padding:8px 12px; font-size:18px; font-weight:900; background:#f1f5f9; box-sizing: border-box; outline: none; }
     .unit-price { font-size: 13px; font-weight: 800; color: #64748b; height: 18px; text-align: right; }
 
-    .bottom-bar { background:white; padding:10px 10px 25px; border-top:1px solid #eee; flex-shrink: 0; }
+    /* 增加安全邊距，防止下沉 */
+    .bottom-bar { background:white; padding:10px 10px 30px; border-top:1px solid #eee; flex-shrink: 0; }
     .win-msg { text-align:center; font-weight:900; margin-bottom:8px; font-size: 15px; color: #94a3b8; }
     
     .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -40,7 +41,6 @@
     }
     .milk-card.active { border-color: #2563eb; background: #f0f7ff; }
     
-    /* 這裡補回了圖示的容器樣式 */
     .card-info { display: flex; align-items: center; gap: 5px; }
     .size-label { font-size: 12px; font-weight: 900; color: #475569; }
     
@@ -53,7 +53,7 @@
 
 <header>
     <h1>MILK v3</h1>
-    <button class="reset-btn" onclick="location.reload()">RESET</button>
+    <button class="reset-btn" onclick="softReset()">RESET</button>
 </header>
 
 <main>
@@ -147,8 +147,20 @@ function getIconHtml(ml) {
     return `<svg width="8" height="${c.h}" viewBox="0 0 22 30"><path d="${c.p}" fill="none" stroke="${c.color}" stroke-width="4"/></svg>`;
 }
 
+// 核心修正：不刷新頁面的重設
+function softReset() {
+    data = {
+        1: { t: 0, c: { 230: 0, 468: 0, 936: 0, 1857: 0 } },
+        2: { t: 0, c: { 230: 0, 468: 0, 936: 0, 1857: 0 } }
+    };
+    document.getElementById("price-1").value = "";
+    document.getElementById("price-2").value = "";
+    recalc(1);
+    recalc(2);
+    switchSide(1);
+}
+
 function switchSide(id) {
-    if (side === id) return;
     side = id;
     document.getElementById("side-card-1").classList.toggle("active-side", id==1);
     document.getElementById("side-card-2").classList.toggle("active-side", id==2);
