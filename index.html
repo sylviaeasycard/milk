@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Milk Scanner v3 PWA</title>
+<title>Milk v3</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2563eb">
 <style>
@@ -47,13 +47,13 @@
 <body>
 
 <header>
-    <h1>MILK SCANNER v3</h1>
+    <h1>MILK v3</h1>
     <button class="reset-btn" onclick="location.reload()">RESET</button>
 </header>
 
 <main>
     <div class="card active-side" id="side-card-1">
-        <div class="label">OPTION A</div>
+        <div class="label">方案 A</div>
         <div class="combo-area" id="list-1"></div>
         <div class="vol-num"><span id="vol-1">0</span> ml</div>
         <input type="number" id="price-1" inputmode="decimal" enterkeyhint="next" placeholder="輸入價格" oninput="calc()">
@@ -61,7 +61,7 @@
     </div>
 
     <div class="card" id="side-card-2">
-        <div class="label">OPTION B</div>
+        <div class="label">方案 B</div>
         <div class="combo-area" id="list-2"></div>
         <div class="vol-num"><span id="vol-2">0</span> ml</div>
         <input type="number" id="price-2" inputmode="decimal" enterkeyhint="done" placeholder="輸入價格" oninput="calc()">
@@ -194,8 +194,8 @@ function calc() {
 
     let txt = document.getElementById("win-text");
     if (u1 && u2) {
-        if (u1 < u2) { txt.innerText = "🏆 OPTION A WINS!"; txt.style.color = "#2563eb"; }
-        else if (u2 < u1) { txt.innerText = "🏆 OPTION B WINS!"; txt.style.color = "#16a34a"; }
+        if (u1 < u2) { txt.innerText = "🏆 方案 A WINS!"; txt.style.color = "#2563eb"; }
+        else if (u2 < u1) { txt.innerText = "🏆 方案 B WINS!"; txt.style.color = "#16a34a"; }
         else { txt.innerText = "TIE GAME"; txt.style.color = "#64748b"; }
     } else {
         txt.innerText = "READY TO COMPARE";
