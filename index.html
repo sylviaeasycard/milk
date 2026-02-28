@@ -3,68 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Milk v3</title>
+<title>Milk v3 - Pro</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2563eb">
 <style>
-    /* 讓整個畫面不要捲動，固定高度 */
     body { font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#f8fafc; margin:0; display:flex; flex-direction:column; height:100dvh; color:#1e293b; overflow: hidden; }
+    header { background:white; padding:12px 20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; flex-shrink: 0; }
+    header h1 { margin:0; font-size:14px; font-weight:900; color:#2563eb; }
+    .reset-btn { border:none; background:#f1f5f9; padding:5px 10px; border-radius:12px; font-size: 11px; font-weight:bold; color:#64748b; }
     
-    /* 1. 縮小 Header，釋放空間 */
-    header { background:white; padding:15px 20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; flex-shrink: 0; }
-    header h1 { margin:0; font-size:16px; font-weight:900; color:#2563eb; }
-    .reset-btn { border:none; background:#f1f5f9; padding:6px 12px; border-radius:15px; font-size: 12px; font-weight:bold; color:#64748b; }
+    main { flex:1; display: flex; flex-direction: column; padding: 10px; gap: 8px; overflow: hidden; }
     
-    /* 2. 主內容區：讓 A、B 方案自動伸展 */
-    main { flex:1; display: flex; flex-direction: column; padding: 12px; gap: 10px; overflow: hidden; }
-    
-    .card { 
-        flex: 1; /* A、B 方案平分剩餘空間 */
-        background:white; border-radius:18px; padding:12px; 
-        border: 2px solid #e2e8f0; transition: 0.2s;
-        display: flex; flex-direction: column; justify-content: space-between;
-    }
-    
-    .card.active-side { border-color: #2563eb; background: #eff6ff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08); }
+    .card { background:white; border-radius:16px; padding:12px; border: 2px solid #e2e8f0; transition: 0.2s; display: flex; flex-direction: column; gap: 5px; }
+    .card.active-side { border-color: #2563eb; background: #eff6ff; box-shadow: 0 4px 10px rgba(37,99,235,0.06); }
     
     .label { font-size:11px; font-weight:900; color:#94a3b8; display: flex; justify-content: space-between; }
     .active-tag { color: #2563eb; font-size: 10px; visibility: hidden; }
     .active-side .active-tag { visibility: visible; }
 
-    .vol-num { font-size:22px; font-weight:900; margin: 5px 0; }
-    .combo-area { display:flex; flex-wrap:wrap; gap:4px; min-height:30px; align-items: flex-end; overflow: hidden; }
+    .vol-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: nowrap; overflow: hidden; }
+    .vol-num { font-size:20px; font-weight:900; white-space: nowrap; }
+    .combo-area { display:flex; align-items: center; gap:2px; overflow: hidden; }
     
-    input { width:100%; border:none; border-radius:12px; padding:10px; font-size:18px; font-weight:900; background:#f1f5f9; box-sizing: border-box; outline: none; }
-    .unit-price { font-size: 14px; font-weight: 800; color: #64748b; height: 18px; }
+    input { width:100%; border:none; border-radius:10px; padding:8px 12px; font-size:18px; font-weight:900; background:#f1f5f9; box-sizing: border-box; outline: none; }
+    .unit-price { font-size: 13px; font-weight: 800; color: #64748b; height: 18px; text-align: right; }
 
-    /* 3. 底部區域：2x2 排列，取消滑動 */
-    .bottom-bar { background:white; padding:12px 12px 25px; border-top:1px solid #eee; flex-shrink: 0; }
-    .win-msg { text-align:center; font-weight:900; margin-bottom:10px; font-size: 16px; color: #94a3b8; }
+    .bottom-bar { background:white; padding:10px 10px 25px; border-top:1px solid #eee; flex-shrink: 0; }
+    .win-msg { text-align:center; font-weight:900; margin-bottom:8px; font-size: 15px; color: #94a3b8; }
     
-    .btn-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr; /* 兩列式 */
-        grid-template-rows: 1fr 1fr;    /* 兩行式 */
-        gap: 8px;
-    }
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 
     .milk-card {
-        background: #f8fafc;
-        border-radius: 12px;
-        padding: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between; /* 左右並排更省垂直空間 */
+        background: #f8fafc; border-radius: 10px; padding: 6px 10px;
+        display: flex; align-items: center; justify-content: space-between;
         border: 1px solid #e2e8f0;
     }
     .milk-card.active { border-color: #2563eb; background: #f0f7ff; }
     
-    .card-info { display: flex; align-items: center; gap: 6px; }
+    /* 這裡補回了圖示的容器樣式 */
+    .card-info { display: flex; align-items: center; gap: 5px; }
     .size-label { font-size: 12px; font-weight: 900; color: #475569; }
     
-    .qty-control { display:flex; align-items:center; gap:6px; }
-    .qty-control button { width:28px; height:28px; border-radius:8px; border:none; background:white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-weight:900; }
-    .qty-control span { min-width:12px; font-weight:900; font-size: 14px; text-align: center; }
+    .qty-control { display:flex; align-items:center; gap:8px; }
+    .qty-control button { width:26px; height:26px; border-radius:6px; border:none; background:white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-weight:900; font-size: 16px; }
+    .qty-control span { min-width:10px; font-weight:900; font-size: 13px; text-align: center; }
 </style>
 </head>
 <body>
@@ -77,28 +59,31 @@
 <main>
     <div class="card active-side" id="side-card-1" onclick="switchSide(1)">
         <div class="label">方案 A <span class="active-tag">● 修改中</span></div>
-        <div class="vol-num"><span id="vol-1">0</span> ml</div>
-        <div class="combo-area" id="list-1"></div>
-        <input type="number" id="price-1" inputmode="decimal" enterkeyhint="next" placeholder="輸入價格" oninput="calc()" onclick="event.stopPropagation()">
+        <div class="vol-row">
+            <div class="vol-num"><span id="vol-1">0</span> <small style="font-size:12px">ml</small></div>
+            <div class="combo-area" id="list-1"></div>
+        </div>
+        <input type="number" id="price-1" inputmode="decimal" placeholder="輸入 A 價格" oninput="calc()" onclick="event.stopPropagation()">
         <div class="unit-price" id="unit-1"></div>
     </div>
 
     <div class="card" id="side-card-2" onclick="switchSide(2)">
         <div class="label">方案 B <span class="active-tag">● 修改中</span></div>
-        <div class="vol-num"><span id="vol-2">0</span> ml</div>
-        <div class="combo-area" id="list-2"></div>
-        <input type="number" id="price-2" inputmode="decimal" enterkeyhint="done" placeholder="輸入價格" oninput="calc()" onclick="event.stopPropagation()">
+        <div class="vol-row">
+            <div class="vol-num"><span id="vol-2">0</span> <small style="font-size:12px">ml</small></div>
+            <div class="combo-area" id="list-2"></div>
+        </div>
+        <input type="number" id="price-2" inputmode="decimal" placeholder="輸入 B 價格" oninput="calc()" onclick="event.stopPropagation()">
         <div class="unit-price" id="unit-2"></div>
     </div>
 </main>
 
 <div class="bottom-bar">
     <div class="win-msg" id="win-text">READY</div>
-
     <div class="btn-grid">
         <div class="milk-card" id="card-230">
             <div class="card-info">
-                <svg width="14" height="20" viewBox="0 0 40 50"><path d="M10 15 L20 5 L30 15 L30 45 L10 45 Z" fill="#eff6ff" stroke="#3b82f6" stroke-width="4"/></svg>
+                <svg width="12" height="18" viewBox="0 0 40 50"><path d="M10 15 L20 5 L30 15 L30 45 L10 45 Z" fill="#eff6ff" stroke="#3b82f6" stroke-width="4"/></svg>
                 <span class="size-label">230</span>
             </div>
             <div class="qty-control">
@@ -109,7 +94,7 @@
         </div>
         <div class="milk-card" id="card-468">
             <div class="card-info">
-                <svg width="14" height="20" viewBox="0 0 40 60"><path d="M10 15 L20 5 L30 15 L30 55 L10 55 Z" fill="#ecfdf5" stroke="#22c55e" stroke-width="4"/></svg>
+                <svg width="12" height="18" viewBox="0 0 40 60"><path d="M10 15 L20 5 L30 15 L30 55 L10 55 Z" fill="#ecfdf5" stroke="#22c55e" stroke-width="4"/></svg>
                 <span class="size-label">468</span>
             </div>
             <div class="qty-control">
@@ -120,7 +105,7 @@
         </div>
         <div class="milk-card" id="card-936">
             <div class="card-info">
-                <svg width="16" height="20" viewBox="0 0 50 70"><path d="M8 15 L25 5 L42 15 L42 65 L8 65 Z" fill="#fff7ed" stroke="#f59e0b" stroke-width="4"/></svg>
+                <svg width="14" height="18" viewBox="0 0 50 70"><path d="M8 15 L25 5 L42 15 L42 65 L8 65 Z" fill="#fff7ed" stroke="#f59e0b" stroke-width="4"/></svg>
                 <span class="size-label">936</span>
             </div>
             <div class="qty-control">
@@ -131,7 +116,7 @@
         </div>
         <div class="milk-card" id="card-1857">
             <div class="card-info">
-                <svg width="18" height="20" viewBox="0 0 65 75"><path d="M15 20 Q15 10 32 10 Q50 10 50 20 L50 65 L15 65 Z" fill="#fef2f2" stroke="#ef4444" stroke-width="4"/></svg>
+                <svg width="16" height="18" viewBox="0 0 65 75"><path d="M15 20 Q15 10 32 10 Q50 10 50 20 L50 65 L15 65 Z" fill="#fef2f2" stroke="#ef4444" stroke-width="4"/></svg>
                 <span class="size-label">1857</span>
             </div>
             <div class="qty-control">
@@ -151,15 +136,15 @@ let data = {
 };
 
 const config = {
-    230:  { color: "#3b82f6", h: 18, p: "M4 6 L8 2 L12 6 L12 18 L4 18 Z" },
-    468:  { color: "#22c55e", h: 20, p: "M4 6 L8 2 L12 6 L12 22 L4 22 Z" },
-    936:  { color: "#f59e0b", h: 22, p: "M3 6 L10 2 L17 6 L17 26 L3 26 Z" },
-    1857: { color: "#ef4444", h: 22, p: "M5 8 Q5 4 12 4 Q19 4 19 8 L19 26 L5 26 Z" }
+    230:  { color: "#3b82f6", h: 14, p: "M4 6 L8 2 L12 6 L12 18 L4 18 Z" },
+    468:  { color: "#22c55e", h: 16, p: "M4 6 L8 2 L12 6 L12 22 L4 22 Z" },
+    936:  { color: "#f59e0b", h: 18, p: "M3 6 L10 2 L17 6 L17 26 L3 26 Z" },
+    1857: { color: "#ef4444", h: 18, p: "M5 8 Q5 4 12 4 Q19 4 19 8 L19 26 L5 26 Z" }
 };
 
 function getIconHtml(ml) {
     const c = config[ml];
-    return `<svg width="10" height="${c.h}" viewBox="0 0 22 30"><path d="${c.p}" fill="none" stroke="${c.color}" stroke-width="3"/></svg>`;
+    return `<svg width="8" height="${c.h}" viewBox="0 0 22 30"><path d="${c.p}" fill="none" stroke="${c.color}" stroke-width="4"/></svg>`;
 }
 
 function switchSide(id) {
@@ -178,8 +163,7 @@ function change(ml, delta) {
 }
 
 function recalc(s) {
-    let total = 0;
-    let html = "";
+    let total = 0; let html = "";
     for (let ml in data[s].c) {
         let count = data[s].c[ml];
         total += ml * count;
@@ -188,8 +172,7 @@ function recalc(s) {
     data[s].t = total;
     document.getElementById("vol-" + s).innerText = total;
     document.getElementById("list-" + s).innerHTML = html;
-    updateUI();
-    calc();
+    updateUI(); calc();
 }
 
 function updateUI() {
@@ -216,21 +199,20 @@ function calc() {
 
     if (u1 && u2) {
         if (u1 < u2) { 
-            winTxt.innerText = "🏆 方案 A 比較便宜!"; winTxt.style.color = "#2563eb";
-            res1.style.color = "#16a34a"; res1.style.fontSize = "20px";
-            res2.style.color = "#94a3b8"; res2.style.fontSize = "14px";
+            winTxt.innerText = "🏆 方案 A 贏了!"; winTxt.style.color = "#2563eb";
+            res1.style.color = "#16a34a"; res1.style.fontSize = "18px";
+            res2.style.color = "#94a3b8"; res2.style.fontSize = "13px";
         } else if (u2 < u1) { 
-            winTxt.innerText = "🏆 方案 B 比較便宜!"; winTxt.style.color = "#16a34a";
-            res2.style.color = "#16a34a"; res2.style.fontSize = "20px";
-            res1.style.color = "#94a3b8"; res1.style.fontSize = "14px";
+            winTxt.innerText = "🏆 方案 B 贏了!"; winTxt.style.color = "#16a34a";
+            res2.style.color = "#16a34a"; res2.style.fontSize = "18px";
+            res1.style.color = "#94a3b8"; res1.style.fontSize = "13px";
         } else { 
             winTxt.innerText = "兩邊一樣省!"; winTxt.style.color = "#64748b";
             res1.style.color = res2.style.color = "#64748b";
         }
     } else {
-        winTxt.innerText = "READY";
-        winTxt.style.color = "#94a3b8";
-        res1.style.color = res2.style.color = "#64748b";
+        winTxt.innerText = "READY"; winTxt.style.color = "#94a3b8";
+        res1.style.color = res2.style.color = "#64748b"; res1.style.fontSize = res2.style.fontSize = "13px";
     }
 }
 
