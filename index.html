@@ -3,60 +3,81 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Milk v3 - Pro</title>
+<title>Milk v3 - Stable</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2563eb">
 <style>
-    body { font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:#f8fafc; margin:0; display:flex; flex-direction:column; height: 100dvh; color:#1e293b; overflow: hidden; }
+    /* 核心修正：讓 body 撐滿但不溢出 */
+    body { 
+        font-family:-apple-system,BlinkMacSystemFont,sans-serif; 
+        background:#f8fafc; margin:0; 
+        display:flex; flex-direction:column; 
+        height: 100vh; height: 100dvh; 
+        color:#1e293b; overflow: hidden; 
+    }
+    
     header { background:white; padding:12px 20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; flex-shrink: 0; }
     header h1 { margin:0; font-size:14px; font-weight:900; color:#2563eb; }
-    .reset-btn { border:none; background:#f1f5f9; padding:5px 10px; border-radius:12px; font-size: 11px; font-weight:bold; color:#64748b; cursor: pointer; }
+    .reset-btn { border:none; background:#f1f5f9; padding:5px 12px; border-radius:12px; font-size: 11px; font-weight:bold; color:#64748b; }
     
-    main { flex:1; display: flex; flex-direction: column; padding: 10px; gap: 8px; overflow: hidden; }
+    /* 修正：main 區塊改為可捲動，應對鍵盤彈出 */
+    main { 
+        flex:1; display: flex; flex-direction: column; 
+        padding: 10px; gap: 10px; 
+        overflow-y: auto; /* 當空間不足時允許捲動 */
+        -webkit-overflow-scrolling: touch;
+    }
     
-    .card { background:white; border-radius:16px; padding:12px; border: 2px solid #e2e8f0; transition: 0.2s; display: flex; flex-direction: column; gap: 5px; }
+    /* 修正：固定卡片高度，避免變形 */
+    .card { 
+        background:white; border-radius:16px; padding:15px; 
+        border: 2px solid #e2e8f0; transition: 0.2s;
+        display: flex; flex-direction: column; gap: 8px;
+        min-height: 120px; /* 固定最小高度，確保 reset 後大小不變 */
+        flex-shrink: 0; /* 禁止被擠壓 */
+    }
     .card.active-side { border-color: #2563eb; background: #eff6ff; box-shadow: 0 4px 10px rgba(37,99,235,0.06); }
     
     .label { font-size:11px; font-weight:900; color:#94a3b8; display: flex; justify-content: space-between; }
     .active-tag { color: #2563eb; font-size: 10px; visibility: hidden; }
     .active-side .active-tag { visibility: visible; }
 
-    .vol-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: nowrap; overflow: hidden; }
-    .vol-num { font-size:20px; font-weight:900; white-space: nowrap; }
-    .combo-area { display:flex; align-items: center; gap:2px; overflow: hidden; height: 22px; }
+    .vol-row { display: flex; align-items: baseline; gap: 8px; height: 28px; }
+    .vol-num { font-size:22px; font-weight:900; }
+    .combo-area { display:flex; align-items: center; gap:2px; overflow-x: auto; white-space: nowrap; flex: 1; }
     
-    input { width:100%; border:none; border-radius:10px; padding:8px 12px; font-size:18px; font-weight:900; background:#f1f5f9; box-sizing: border-box; outline: none; }
-    .unit-price { font-size: 13px; font-weight: 800; color: #64748b; height: 18px; text-align: right; }
+    input { width:100%; border:none; border-radius:10px; padding:10px 12px; font-size:20px; font-weight:900; background:#f1f5f9; box-sizing: border-box; outline: none; transition: 0.2s; }
+    input:focus { background: #e2e8f0; }
+    .unit-price { font-size: 13px; font-weight: 800; color: #64748b; height: 20px; text-align: right; }
 
-    /* 增加安全邊距，防止下沉 */
-    .bottom-bar { background:white; padding:10px 10px 30px; border-top:1px solid #eee; flex-shrink: 0; }
+    /* 修正底部：確保在鍵盤彈出時不佔用 main 的捲動空間 */
+    .bottom-bar { background:white; padding:10px 10px 25px; border-top:1px solid #eee; flex-shrink: 0; z-index: 10; }
     .win-msg { text-align:center; font-weight:900; margin-bottom:8px; font-size: 15px; color: #94a3b8; }
     
-    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
     .milk-card {
-        background: #f8fafc; border-radius: 10px; padding: 6px 10px;
+        background: #f8fafc; border-radius: 12px; padding: 8px 12px;
         display: flex; align-items: center; justify-content: space-between;
         border: 1px solid #e2e8f0;
     }
     .milk-card.active { border-color: #2563eb; background: #f0f7ff; }
+    .card-info { display: flex; align-items: center; gap: 6px; }
+    .size-label { font-size: 13px; font-weight: 900; color: #475569; }
     
-    .card-info { display: flex; align-items: center; gap: 5px; }
-    .size-label { font-size: 12px; font-weight: 900; color: #475569; }
-    
-    .qty-control { display:flex; align-items:center; gap:8px; }
-    .qty-control button { width:26px; height:26px; border-radius:6px; border:none; background:white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-weight:900; font-size: 16px; }
-    .qty-control span { min-width:10px; font-weight:900; font-size: 13px; text-align: center; }
+    .qty-control { display:flex; align-items:center; gap:10px; }
+    .qty-control button { width:30px; height:30px; border-radius:8px; border:none; background:white; box-shadow: 0 2px 4px rgba(0,0,0,0.08); font-weight:900; font-size: 18px; color: #2563eb; }
+    .qty-control span { min-width:12px; font-weight:900; font-size: 15px; }
 </style>
 </head>
 <body>
 
 <header>
-    <h1>MILK v3</h1>
+    <h1>MILK v3.1</h1>
     <button class="reset-btn" onclick="softReset()">RESET</button>
 </header>
 
-<main>
+<main id="scroll-main">
     <div class="card active-side" id="side-card-1" onclick="switchSide(1)">
         <div class="label">方案 A <span class="active-tag">● 修改中</span></div>
         <div class="vol-row">
@@ -144,10 +165,9 @@ const config = {
 
 function getIconHtml(ml) {
     const c = config[ml];
-    return `<svg width="8" height="${c.h}" viewBox="0 0 22 30"><path d="${c.p}" fill="none" stroke="${c.color}" stroke-width="4"/></svg>`;
+    return `<svg width="8" height="${c.h}" viewBox="0 0 22 30" style="flex-shrink:0"><path d="${c.p}" fill="none" stroke="${c.color}" stroke-width="4"/></svg>`;
 }
 
-// 核心修正：不刷新頁面的重設
 function softReset() {
     data = {
         1: { t: 0, c: { 230: 0, 468: 0, 936: 0, 1857: 0 } },
@@ -155,8 +175,7 @@ function softReset() {
     };
     document.getElementById("price-1").value = "";
     document.getElementById("price-2").value = "";
-    recalc(1);
-    recalc(2);
+    recalc(1); recalc(2);
     switchSide(1);
 }
 
@@ -228,9 +247,25 @@ function calc() {
     }
 }
 
+// 監聽 Enter 切換
 document.getElementById('price-1').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); switchSide(2); document.getElementById('price-2').focus(); } });
 document.getElementById('price-2').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
-document.addEventListener('touchstart', e => { if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') document.activeElement.blur(); }, {passive: true});
+
+// 點擊空白處收起鍵盤
+document.addEventListener('touchstart', e => { 
+    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+        document.activeElement.blur();
+    }
+}, {passive: true});
+
+// 修正鍵盤彈出時自動滾動
+window.addEventListener('resize', () => {
+    if (document.activeElement.tagName === 'INPUT') {
+        setTimeout(() => {
+            document.activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    }
+});
 </script>
 </body>
 </html>
