@@ -56,7 +56,7 @@
         <div class="label">OPTION A</div>
         <div class="combo-area" id="list-1"></div>
         <div class="vol-num"><span id="vol-1">0</span> ml</div>
-        <input type="number" id="price-1" inputmode="decimal" placeholder="輸入價格" oninput="calc()">
+        <input type="number" id="price-1" inputmode="decimal" enterkeyhint="next" placeholder="輸入價格" oninput="calc()">
         <div class="unit-price" id="unit-1"></div>
     </div>
 
@@ -64,7 +64,7 @@
         <div class="label">OPTION B</div>
         <div class="combo-area" id="list-2"></div>
         <div class="vol-num"><span id="vol-2">0</span> ml</div>
-        <input type="number" id="price-2" inputmode="decimal" placeholder="輸入價格" oninput="calc()">
+        <input type="number" id="price-2" inputmode="decimal" enterkeyhint="done" placeholder="輸入價格" oninput="calc()">
         <div class="unit-price" id="unit-2"></div>
     </div>
 </main>
@@ -202,6 +202,42 @@ function calc() {
         txt.style.color = "#94a3b8";
     }
 }
+
+// 1. 自動切換與收起鍵盤邏輯
+document.getElementById('price-1').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault(); // 防止網頁重新整理
+        switchSide(2);      // 切換到 B
+        document.getElementById('price-2').focus(); // 自動跳到 B 的輸入框
+    }
+});
+
+document.getElementById('price-2').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        this.blur(); // 隱藏鍵盤
+    }
+});
+
+// 2. 點擊畫面空白處自動收起鍵盤
+document.addEventListener('touchstart', function(e) {
+    // 如果點擊的不是輸入框，就收起鍵盤
+    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+        if (document.activeElement.tagName === 'INPUT') {
+            document.activeElement.blur();
+        }
+    }
+}, {passive: true});
+
+// 3. 修正：切換 Tab 時如果鍵盤開著，也先收起來以免擋住
+const originalSwitchSide = switchSide;
+switchSide = function(id) {
+    if (document.activeElement.tagName === 'INPUT') {
+        document.activeElement.blur();
+    }
+    originalSwitchSide(id);
+};
+
 </script>
 </body>
 </html>
