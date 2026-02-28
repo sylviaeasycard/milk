@@ -28,8 +28,27 @@
     .bottom-bar { background:white; padding:20px; border-top:1px solid #eee; box-shadow:0 -5px 20px rgba(0,0,0,0.05); }
     .win-msg { text-align:center; font-weight:900; margin-bottom:15px; font-size: 18px; min-height: 24px; }
     
-    .btn-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:15px; }
-    .milk-card { background:white; border-radius:18px; padding:10px 5px; text-align:center; border: 2px solid transparent; box-shadow:0 4px 10px rgba(0,0,0,0.05); }
+.btn-grid {
+    display: flex;         /* 改用 Flex 佈局 */
+    flex-wrap: wrap;       /* 自動換行：寬度不夠就跳下一行 */
+    gap: 8px;              /* 間距稍微縮小一點點 */
+    justify-content: center; /* 讓按鈕在畫面上居中 */
+    margin-bottom: 15px;
+}
+
+.milk-card {
+    /* 核心邏輯：基礎寬度佔 22%，但最小不低於 80px */
+    flex: 1 1 calc(25% - 10px); 
+    min-width: 80px;       
+    
+    background: white;
+    border-radius: 18px;
+    padding: 10px 4px;
+    text-align: center;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    box-sizing: border-box; /* 確保 padding 不會撐破寬度 */
+}
     .milk-card.active { border-color: #2563eb; }
     .size-label { font-size:11px; font-weight:900; margin: 5px 0; }
     
@@ -70,8 +89,6 @@
 </main>
 
 <div class="bottom-bar">
-    <div id="win-text" class="win-msg">READY TO COMPARE</div>
-    
     <div class="btn-grid">
         <div class="milk-card" id="card-230">
             <svg width="20" height="30" viewBox="0 0 40 50"><path d="M10 15 L20 5 L30 15 L30 45 L10 45 Z" fill="#eff6ff" stroke="#3b82f6" stroke-width="4"/></svg>
